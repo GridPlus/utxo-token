@@ -37,21 +37,33 @@ contract UTXOToken {
   function spend(bytes32 _id, uint _amount, address _to) public {
     require(utxos[_id].owner == msg.sender);
     require(utxos[_id].value >= _amount);
+    splitAndSpend(_id, _amount, _to, msg.sender);
+  }
 
+  function spendOnBehalf(bytes32 _id, uint _amount, uint _expiration, address _to,
+  bytes32 r, bytes32 s, uint8 v) public {
+    require(_expiration > now);
+    bytes32 h = keccak256(_id, _amount, _to, _expiration);
+    address spender = ecrecover(h, v, r, s);
+    require(spender == utxos[_id].owner);
+    splitAndSpend(_id, _amount, _to, spender);
+  }
+
+  function splitAndSpend(bytes32 _id, uint _amount, address _to, address _from) internal {
     UTXO memory oldUtxo = utxos[_id];
     delete utxos[_id];
 
     bytes32 newId1 = getId(_to, _id);
     UTXO memory spend1 = UTXO(_to, _amount, _id, newId1);
     utxos[newId1] = spend1;
-    LogSpend(msg.sender, _to, oldUtxo.id, newId1, _amount);
+    LogSpend(_from, _to, oldUtxo.id, newId1, _amount);
 
     if (_amount < oldUtxo.value) {
       // slightly mutate the _id value to prevent a collision
-      bytes32 newId2 = getId(msg.sender, _id ^ bytes32(1));
-      UTXO memory spend2 = UTXO(msg.sender, oldUtxo.value - _amount, _id, newId2);
+      bytes32 newId2 = getId(_from, _id ^ bytes32(1));
+      UTXO memory spend2 = UTXO(_from, oldUtxo.value - _amount, _id, newId2);
       utxos[newId2] = spend2;
-      LogSpend(msg.sender, _to, oldUtxo.id, newId2, oldUtxo.value - _amount);
+      LogSpend(_from, _to, oldUtxo.id, newId2, oldUtxo.value - _amount);
     }
   }
 
