@@ -49,6 +49,13 @@ contract UTXOToken {
     splitAndSpend(_id, _amount, _to, spender);
   }
 
+  function checkSpender(bytes32 _id, uint _amount, uint _expiration, address _to,
+  bytes32 r, bytes32 s, uint8 v) public constant returns (address) {
+    bytes32 h = keccak256(_id, _amount, _to, _expiration);
+    address spender = ecrecover(h, v, r, s);
+    return spender;
+  }
+
   function splitAndSpend(bytes32 _id, uint _amount, address _to, address _from) internal {
     UTXO memory oldUtxo = utxos[_id];
     delete utxos[_id];
