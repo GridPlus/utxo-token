@@ -1,0 +1,27 @@
+{
+  "name": "utxo-token",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GridPlus/utxo-token.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GridPlus/utxo-token/issues"
+  },
+  "homepage": "https://github.com/GridPlus/utxo-token#readme",
+  "dependencies": {
+    "ethereumjs-util": "^5.1.5",
+    "left-pad": "^1.2.0",
+    "solidity-sha3": "^0.4.1"
+  }
+}
